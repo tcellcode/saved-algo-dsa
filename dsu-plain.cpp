@@ -1,3 +1,9 @@
+int par[MAXN], sz[MAXN];
+for (int i = 0; i <= n; i++) {
+    par[i] = i;
+    sz[i] = 1;
+}
+
 // 1. Path Compression
 int acs(int u) 
 {
