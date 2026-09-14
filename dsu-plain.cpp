@@ -15,7 +15,7 @@ int acs(int u)
 }
 
 // 2. Union by Size
-void join(int u, int v) 
+bool join(int u, int v) 
 {
     int x = acs(u);
     int y = acs(v);
@@ -33,5 +33,9 @@ void join(int u, int v)
         
         // Update the size of the new combined set
         sz[x] += sz[y]; 
+        
+        return true; // Indicates a successful merge
     }
+    
+    return false; // Indicates they were already in the same set (cycle detected)
 }
