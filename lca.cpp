@@ -2,7 +2,7 @@ class Graph
 {
     private:
         vector<vector<pair<int, int>>> adj;
-        vector<vector<int>> par;
+        vector<vector<int>> par; // par[u][i] 2^i th ancestor of u
         vector<vector<int>> maxEdge;
         vector<int> depth;
         int n, LOG2N;
@@ -49,7 +49,7 @@ class Graph
             {
                 for (int i = 1; i <= n; i++)
                 {
-                    par[i][j] = par[ par[i][j - 1] ][j - 1];
+                    par[i][j] = par[ par[i][j - 1] ][j - 1]; // 2^(i - 1) + 2^(i - 1) = 2^i
                     maxEdge[i][j] = max(maxEdge[i][j - 1], maxEdge[ par[i][j - 1] ][j - 1]);
                 }
             }
