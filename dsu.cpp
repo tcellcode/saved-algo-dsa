@@ -17,20 +17,17 @@ class DSU
             return par[u] = acs(par[u]);
         }
 
-        void join(int u, int v)
+        bool join(int u, int v)
         {
             int ru = acs(u), rv = acs(v);
-            if (ru == rv) return; // same set
+            if (ru == rv) return false; // no need to join
             
             // root u has the largest size
             if (sz[ru] < sz[rv]) swap(ru, rv);
             par[rv] = ru;
             sz[ru] += sz[rv];
+            return true;
         }
 
-        bool connected(int u, int v)
-        {
-            int ru = acs(u), rv = acs(v);
-            return (ru == rv);
-        }
+        
 };
