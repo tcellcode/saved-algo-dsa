@@ -29,5 +29,11 @@ class DSU
             return true;
         }
 
+        bool connected(int u, int v)
+        {
+            int ru = acs(u), rv = acs(v);
+            return (ru == rv);
+        }
+
         
 };
