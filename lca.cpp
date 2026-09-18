@@ -79,5 +79,17 @@ class Graph
             res = max({res, maxEdge[u][0], maxEdge[v][0]});
             return res;
         }
+        int acs(int u, int k)
+        {
+            if (depth[u] - 1 < k) return -1;
+            for (int i = 0; i <= LOG2N; i++)
+            {
+                if (k & (1 << i))
+                {
+                    u = par[u][i];
+                }
+            }
+            return u;
+        }
  
 };
