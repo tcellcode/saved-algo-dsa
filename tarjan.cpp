@@ -1,6 +1,6 @@
 void tarjan(int u)
 {
-     low[u] = id[u] = ++cnt;
+     low[u] = id[u] = ++dfstime;
      s.push(u);
      
      for (auto v : g[u])
