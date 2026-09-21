@@ -5,7 +5,7 @@ class Graph
         vector<vector<int>> par; // par[u][i] 2^i th ancestor of u
         vector<vector<int>> maxEdge;
         vector<int> depth;
-        int n, LOG2N;
+        int n, LOG2N = 30;
  
         void dfs(int u, int p)
         {
@@ -23,7 +23,6 @@ class Graph
         Graph(int numU)
         {
             n = numU;
-            LOG2N = (int)log2(n);
             adj.resize(n + 5);
             depth.resize(n + 5, 0); 
             par.assign(n + 5, vector<int>(LOG2N + 5, 0));
