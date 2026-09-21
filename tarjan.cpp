@@ -10,7 +10,7 @@ void tarjan(int u)
           if (id[v]) low[u] = min(low[u], id[v]);
           else
           {
-               dfs(v);
+               tarjan(v);
                low[u] = min(low[u], low[v]);
           }
      }
