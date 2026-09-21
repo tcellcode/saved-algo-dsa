@@ -2,7 +2,8 @@ class Graph
 {
     private:
         vector<vector<pair<int, int>>> adj;
-        vector<vector<int>> par; // par[u][i] 2^i th ancestor of u
+        // Swapped dimensions: [j][i] means 2^j th ancestor of i
+        vector<vector<int>> par; 
         vector<vector<int>> maxEdge;
         vector<int> depth;
         int n, LOG2N = 30;
@@ -13,8 +14,8 @@ class Graph
             {
                 if (v.first == p) continue;
                 depth[v.first] = depth[u] + 1;
-                par[v.first][0] = u;
-                maxEdge[v.first][0] = v.second;
+                par[0][v.first] = u;
+                maxEdge[0][v.first] = v.second;
                 dfs(v.first, u);
             }
         }
@@ -25,14 +26,17 @@ class Graph
             n = numU;
             adj.resize(n + 5);
             depth.resize(n + 5, 0); 
-            par.assign(n + 5, vector<int>(LOG2N + 5, 0));
-            maxEdge.assign(n + 5, vector<int>(LOG2N + 5, 0));
+            // Resize outer vector to LOG2N + 5, inner vector to n + 5
+            par.assign(LOG2N + 5, vector<int>(n + 5, 0));
+            maxEdge.assign(LOG2N + 5, vector<int>(n + 5, 0));
         }
+        
         void addEdge(int u, int v, int w)
         {
             adj[u].push_back({v, w});
             adj[v].push_back({u, w});
         }
+        
         void buildlca()
         {
             for(int i = 1; i <= n; i++) 
@@ -40,7 +44,7 @@ class Graph
                 if(depth[i] == 0) 
                 {
                     depth[i] = 1;
-                    par[i][0] = i;
+                    par[0][i] = i;
                     dfs(i, i);
                 }
             }
@@ -48,36 +52,42 @@ class Graph
             {
                 for (int i = 1; i <= n; i++)
                 {
-                    par[i][j] = par[ par[i][j - 1] ][j - 1]; // 2^(i - 1) + 2^(i - 1) = 2^i
-                    maxEdge[i][j] = max(maxEdge[i][j - 1], maxEdge[ par[i][j - 1] ][j - 1]);
+                    par[j][i] = par[j - 1][ par[j - 1][i] ]; 
+                    maxEdge[j][i] = max(maxEdge[j - 1][i], maxEdge[j - 1][ par[j - 1][i] ]);
                 }
             }
         }
+        
         int lca(int u, int v)
         {
             int res = 0;
             if (depth[u] < depth[v]) swap(u, v); 
+            
             for (int i = LOG2N; i >= 0; i--) // bring u to the same depth as v
             {
-                if (depth[u] - depth[v] >= (1 << i)) // can u do a 2^i jump
+                if (depth[u] - depth[v] >= (1 << i)) 
                 {
-                    res = max(res, maxEdge[u][i]); // update res first
-                    u = par[u][i];
+                    res = max(res, maxEdge[i][u]); 
+                    u = par[i][u];
                 }
             }
+            
             if (u == v) return res;
+            
             for (int i = LOG2N; i >= 0; i--) // u, v both jump
             {
-                if (par[u][i] != par[v][i])
+                if (par[i][u] != par[i][v])
                 {
-                    res = max({res, maxEdge[u][i], maxEdge[v][i]}); // update res first
-                    u = par[u][i];
-                    v = par[v][i];
+                    res = max({res, maxEdge[i][u], maxEdge[i][v]}); 
+                    u = par[i][u];
+                    v = par[i][v];
                 }
             }
-            res = max({res, maxEdge[u][0], maxEdge[v][0]});
+            
+            res = max({res, maxEdge[0][u], maxEdge[0][v]});
             return res;
         }
+        
         int acs(int u, int k)
         {
             if (depth[u] - 1 < k) return -1;
@@ -85,10 +95,9 @@ class Graph
             {
                 if (k & (1 << i))
                 {
-                    u = par[u][i];
+                    u = par[i][u];
                 }
             }
             return u;
         }
- 
 };
