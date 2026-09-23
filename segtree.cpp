@@ -21,6 +21,7 @@ private:
 
     void build(int id, int l, int r, const std::vector<ValueType>& arr) {
         if (l == r) {
+            
             st[id] = arr[l]; 
             return;
         }
@@ -99,3 +100,4 @@ public:
         return query(1, 1, n, u, v);
     }
 };
+
