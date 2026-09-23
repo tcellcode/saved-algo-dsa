@@ -2,24 +2,24 @@
 #include <vector>
 #include <functional>
 
-template <typename T, typename L>
+template <typename ValueType, typename LazyType>
 class LazySegmentTree {
 private:
     int n;
-    std::vector<T> st;
-    std::vector<L> lazy;
+    std::vector<ValueType> st;
+    std::vector<LazyType> lazy;
     
-    T id_T; // Identity element for the node (e.g., 0 for sum)
-    L id_L; // Identity element for the lazy tag (e.g., 0 for "no pending update")
+    ValueType id_Value; // Identity element for the node (e.g., 0 for sum)
+    LazyType id_Lazy;   // Identity element for the lazy tag (e.g., 0 for "no pending update")
 
     // Function to merge two child nodes
-    std::function<T(T, T)> combine;
+    std::function<ValueType(ValueType, ValueType)> combine;
     // Function to apply a lazy tag to a node
-    std::function<void(T&, L, int)> apply_op;
+    std::function<void(ValueType&, LazyType, int)> apply_op;
     // Function to merge a new lazy tag into an existing one
-    std::function<void(L&, L)> compose_op;
+    std::function<void(LazyType&, LazyType)> compose_op;
 
-    void build(int id, int l, int r, const std::vector<T>& arr) {
+    void build(int id, int l, int r, const std::vector<ValueType>& arr) {
         if (l == r) {
             st[id] = arr[l];
             return;
@@ -31,7 +31,7 @@ private:
     }
 
     void push(int id, int l, int r) {
-        if (lazy[id] != id_L) {
+        if (lazy[id] != id_Lazy) {
             int mid = (l + r) >> 1;
             
             // Apply to left child
@@ -43,11 +43,11 @@ private:
             compose_op(lazy[2 * id + 1], lazy[id]);
             
             // Clear current node's lazy tag
-            lazy[id] = id_L;
+            lazy[id] = id_Lazy;
         }
     }
 
-    void update(int id, int l, int r, int u, int v, L val) {
+    void update(int id, int l, int r, int u, int v, LazyType val) {
         if (r < u || v < l) return;
         if (u <= l && r <= v) {
             apply_op(st[id], val, r - l + 1);
@@ -61,8 +61,8 @@ private:
         st[id] = combine(st[2 * id], st[2 * id + 1]);
     }
 
-    T query(int id, int l, int r, int u, int v) {
-        if (r < u || v < l) return id_T;
+    ValueType query(int id, int l, int r, int u, int v) {
+        if (r < u || v < l) return id_Value;
         if (u <= l && r <= v) return st[id];
         push(id, l, r);
         int mid = (l + r) >> 1;
@@ -73,29 +73,29 @@ private:
     }
 
 public:
-    LazySegmentTree(const std::vector<T>& arr, 
-                    T identity_T, L identity_L,
-                    std::function<T(T, T)> combine_func,
-                    std::function<void(T&, L, int)> apply_func,
-                    std::function<void(L&, L)> compose_func) 
-        : id_T(identity_T), id_L(identity_L), 
+    LazySegmentTree(const std::vector<ValueType>& arr, 
+                    ValueType identity_Value, LazyType identity_Lazy,
+                    std::function<ValueType(ValueType, ValueType)> combine_func,
+                    std::function<void(ValueType&, LazyType, int)> apply_func,
+                    std::function<void(LazyType&, LazyType)> compose_func) 
+        : id_Value(identity_Value), id_Lazy(identity_Lazy), 
           combine(combine_func), apply_op(apply_func), compose_op(compose_func) {
         
         n = arr.size();
         // 1-based indexing for internal array, size 4*N is safe upper bound
-        st.assign(4 * n, id_T);
-        lazy.assign(4 * n, id_L);
+        st.assign(4 * n, id_Value);
+        lazy.assign(4 * n, id_Lazy);
         if (n > 0) {
             build(1, 0, n - 1, arr);
         }
     }
 
     // 0-indexed public wrappers
-    void update(int u, int v, L val) {
+    void update(int u, int v, LazyType val) {
         update(1, 0, n - 1, u, v, val);
     }
 
-    T query(int u, int v) {
+    ValueType query(int u, int v) {
         return query(1, 0, n - 1, u, v);
     }
 };
