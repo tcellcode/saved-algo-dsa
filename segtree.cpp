@@ -21,7 +21,8 @@ private:
 
     void build(int id, int l, int r, const std::vector<ValueType>& arr) {
         if (l == r) {
-            st[id] = arr[l];
+            // Map the 1-indexed tree range to the 0-indexed input array
+            st[id] = arr[l - 1]; 
             return;
         }
         int mid = (l + r) >> 1;
@@ -83,19 +84,19 @@ public:
         
         n = arr.size();
         // 1-based indexing for internal array, size 4*N is safe upper bound
-        st.assign(4 * n, id_Value);
-        lazy.assign(4 * n, id_Lazy);
+        st.assign(4 * n + 1, id_Value);
+        lazy.assign(4 * n + 1, id_Lazy);
         if (n > 0) {
-            build(1, 0, n - 1, arr);
+            build(1, 1, n, arr); // Build using 1-indexed bounds [1, n]
         }
     }
 
-    // 0-indexed public wrappers
+    // 1-indexed public wrappers
     void update(int u, int v, LazyType val) {
-        update(1, 0, n - 1, u, v, val);
+        update(1, 1, n, u, v, val);
     }
 
     ValueType query(int u, int v) {
-        return query(1, 0, n - 1, u, v);
+        return query(1, 1, n, u, v);
     }
 };
