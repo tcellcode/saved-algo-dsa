@@ -81,7 +81,7 @@ public:
         : id_Value(identity_Value), id_Lazy(identity_Lazy), 
           combine(combine_func), apply_op(apply_func), compose_op(compose_func) {
         
-        n = arr.size();
+        n = arr.size() - 1;
         // 1-based indexing for internal array, size 4*N is safe upper bound
         st.assign(4 * n + 1, id_Value);
         lazy.assign(4 * n + 1, id_Lazy);
