@@ -1,12 +1,22 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
 class Graph
 {
     private:
+        // n and LOG2N MUST be declared at the top so they are initialized 
+        // before being used to size the vectors below.
+        int n;
+        int LOG2N = 30;
+        
         vector<vector<pair<int, int>>> adj;
         // Swapped dimensions: [j][i] means 2^j th ancestor of i
         vector<vector<int>> par; 
         vector<vector<int>> maxEdge;
         vector<int> depth;
-        int n, LOG2N = 30;
  
         void dfs(int u, int p)
         {
@@ -21,14 +31,16 @@ class Graph
         }
  
     public:
-        Graph(int numU)
+        // Member initializer list directly constructs vectors with target sizes.
+        // It is perfectly safe to use 'n(n)' where the parameter shares the member's name.
+        Graph(int n) 
+            : n(n), 
+              adj(n + 5), 
+              par(LOG2N + 5, vector<int>(n + 5, 0)), 
+              maxEdge(LOG2N + 5, vector<int>(n + 5, 0)), 
+              depth(n + 5, 0)
         {
-            n = numU;
-            adj.resize(n + 5);
-            depth.resize(n + 5, 0); 
-            // Resize outer vector to LOG2N + 5, inner vector to n + 5
-            par.assign(LOG2N + 5, vector<int>(n + 5, 0));
-            maxEdge.assign(LOG2N + 5, vector<int>(n + 5, 0));
+            // Empty body: zero reallocation overhead
         }
         
         void addEdge(int u, int v, int w)
@@ -39,9 +51,9 @@ class Graph
         
         void buildlca()
         {
-            for(int i = 1; i <= n; i++) 
+            for (int i = 1; i <= n; i++) 
             {
-                if(depth[i] == 0) 
+                if (depth[i] == 0) 
                 {
                     depth[i] = 1;
                     par[0][i] = i;
@@ -63,7 +75,8 @@ class Graph
             int res = 0;
             if (depth[u] < depth[v]) swap(u, v); 
             
-            for (int i = LOG2N; i >= 0; i--) // bring u to the same depth as v
+            // Bring u to the same depth as v
+            for (int i = LOG2N; i >= 0; i--) 
             {
                 if (depth[u] - depth[v] >= (1 << i)) 
                 {
@@ -74,7 +87,8 @@ class Graph
             
             if (u == v) return res;
             
-            for (int i = LOG2N; i >= 0; i--) // u, v both jump
+            // Both u and v jump upwards
+            for (int i = LOG2N; i >= 0; i--) 
             {
                 if (par[i][u] != par[i][v])
                 {
