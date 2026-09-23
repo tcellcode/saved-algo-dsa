@@ -30,14 +30,14 @@ private:
     void push(int id, int l, int r) {
         if (lazy[id] != id_Lazy) {
             int mid = (l + r) >> 1;
-            int lc = id << 1;
-            int rc = lc | 1;
             
-            apply_op(st[lc], lazy[id], mid - l + 1);
-            compose_op(lazy[lc], lazy[id]);
+            // Apply to left child
+            apply_op(st[id << 1], lazy[id], mid - l + 1);
+            compose_op(lazy[id << 1], lazy[id]);
             
-            apply_op(st[rc], lazy[id], r - mid);
-            compose_op(lazy[rc], lazy[id]);
+            // Apply to right child
+            apply_op(st[(id << 1) | 1], lazy[id], r - mid);
+            compose_op(lazy[(id << 1) | 1], lazy[id]);
             
             lazy[id] = id_Lazy;
         }
