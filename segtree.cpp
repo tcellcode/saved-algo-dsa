@@ -21,8 +21,7 @@ private:
 
     void build(int id, int l, int r, const std::vector<ValueType>& arr) {
         if (l == r) {
-            // Map the 1-indexed tree range to the 0-indexed input array
-            st[id] = arr[l - 1]; 
+            st[id] = arr[l]; 
             return;
         }
         int mid = (l + r) >> 1;
