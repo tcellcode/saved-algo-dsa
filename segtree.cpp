@@ -1,30 +1,30 @@
-#include <vector>
-#include <iostream>
-
-template <typename ValueType, typename LazyType, 
-          typename CombineFunc, typename ApplyFunc, typename ComposeFunc>
+template <typename ValueType, typename LazyType>
 class LazySegmentTree {
 private:
     int n;
     std::vector<ValueType> st;
     std::vector<LazyType> lazy;
     
-    ValueType id_Value; 
-    LazyType id_Lazy;   
+    ValueType id_Value; // Identity element for the node (e.g., 0 for sum)
+    LazyType id_Lazy;   // Identity element for the lazy tag (e.g., 0 for "no pending update")
 
-    CombineFunc combine;
-    ApplyFunc apply_op;
-    ComposeFunc compose_op;
+    // Function to merge two child nodes
+    std::function<ValueType(ValueType, ValueType)> combine;
+    // Function to apply a lazy tag to a node
+    std::function<void(ValueType&, LazyType, int)> apply_op;
+    // Function to merge a new lazy tag into an existing one
+    std::function<void(LazyType&, LazyType)> compose_op;
 
     void build(int id, int l, int r, const std::vector<ValueType>& arr) {
         if (l == r) {
+            
             st[id] = arr[l]; 
             return;
         }
         int mid = (l + r) >> 1;
-        build(id << 1, l, mid, arr);
-        build((id << 1) | 1, mid + 1, r, arr);
-        st[id] = combine(st[id << 1], st[(id << 1) | 1]);
+        build(2 * id, l, mid, arr);
+        build(2 * id + 1, mid + 1, r, arr);
+        st[id] = combine(st[2 * id], st[2 * id + 1]);
     }
 
     void push(int id, int l, int r) {
@@ -32,13 +32,14 @@ private:
             int mid = (l + r) >> 1;
             
             // Apply to left child
-            apply_op(st[id << 1], lazy[id], mid - l + 1);
-            compose_op(lazy[id << 1], lazy[id]);
+            apply_op(st[2 * id], lazy[id], mid - l + 1);
+            compose_op(lazy[2 * id], lazy[id]);
             
             // Apply to right child
-            apply_op(st[(id << 1) | 1], lazy[id], r - mid);
-            compose_op(lazy[(id << 1) | 1], lazy[id]);
+            apply_op(st[2 * id + 1], lazy[id], r - mid);
+            compose_op(lazy[2 * id + 1], lazy[id]);
             
+            // Clear current node's lazy tag
             lazy[id] = id_Lazy;
         }
     }
@@ -52,9 +53,9 @@ private:
         }
         push(id, l, r);
         int mid = (l + r) >> 1;
-        update(id << 1, l, mid, u, v, val);
-        update((id << 1) | 1, mid + 1, r, u, v, val);
-        st[id] = combine(st[id << 1], st[(id << 1) | 1]);
+        update(2 * id, l, mid, u, v, val);
+        update(2 * id + 1, mid + 1, r, u, v, val);
+        st[id] = combine(st[2 * id], st[2 * id + 1]);
     }
 
     ValueType query(int id, int l, int r, int u, int v) {
@@ -63,26 +64,30 @@ private:
         push(id, l, r);
         int mid = (l + r) >> 1;
         return combine(
-            query(id << 1, l, mid, u, v),
-            query((id << 1) | 1, mid + 1, r, u, v)
+            query(2 * id, l, mid, u, v),
+            query(2 * id + 1, mid + 1, r, u, v)
         );
     }
 
 public:
     LazySegmentTree(const std::vector<ValueType>& arr, 
                     ValueType identity_Value, LazyType identity_Lazy,
-                    CombineFunc combine_func, ApplyFunc apply_func, ComposeFunc compose_func) 
+                    std::function<ValueType(ValueType, ValueType)> combine_func,
+                    std::function<void(ValueType&, LazyType, int)> apply_func,
+                    std::function<void(LazyType&, LazyType)> compose_func) 
         : id_Value(identity_Value), id_Lazy(identity_Lazy), 
           combine(combine_func), apply_op(apply_func), compose_op(compose_func) {
         
         n = arr.size() - 1;
+        // 1-based indexing for internal array, size 4*N is safe upper bound
         st.assign(4 * n + 1, id_Value);
         lazy.assign(4 * n + 1, id_Lazy);
         if (n > 0) {
-            build(1, 1, n, arr);
+            build(1, 1, n, arr); // Build using 1-indexed bounds [1, n]
         }
     }
 
+    // 1-indexed public wrappers
     void update(int u, int v, LazyType val) {
         update(1, 1, n, u, v, val);
     }
