@@ -90,7 +90,9 @@ public:
         return query(1, 1, n, u, v);
     }
 };
- 
+
+// Example Usage
+
 struct Node {
     int mn, mx;
     bool operator!=(const Node& other) const {
