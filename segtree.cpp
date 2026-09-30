@@ -14,12 +14,13 @@ private:
     
     ValueType id_Value; 
     LazyType id_Lazy;    
- 
+
     CombineFunc combine;
     ApplyFunc apply_op;
     ComposeFunc compose_op;
- 
+
     void build(int id, int l, int r, const std::vector<ValueType>& arr) {
+        lazy[id] = id_Lazy; // Clear lazy state for multiple testcases
         if (l == r) {
             st[id] = arr[l]; 
             return;
@@ -29,7 +30,7 @@ private:
         build((id << 1) | 1, mid + 1, r, arr);
         st[id] = combine(st[id << 1], st[(id << 1) | 1]);
     }
- 
+
     void push(int id, int l, int r) {
         if (lazy[id] != id_Lazy) {
             int mid = (l + r) >> 1;
@@ -43,7 +44,7 @@ private:
             lazy[id] = id_Lazy;
         }
     }
- 
+
     void update(int id, int l, int r, int u, int v, LazyType val) {
         if (r < u || v < l) return;
         if (u <= l && r <= v) {
@@ -57,7 +58,7 @@ private:
         update((id << 1) | 1, mid + 1, r, u, v, val);
         st[id] = combine(st[id << 1], st[(id << 1) | 1]);
     }
- 
+
     ValueType query(int id, int l, int r, int u, int v) {
         if (r < u || v < l) return id_Value;
         if (u <= l && r <= v) return st[id];
@@ -68,24 +69,29 @@ private:
             query((id << 1) | 1, mid + 1, r, u, v)
         );
     }
- 
+
 public:
     LazySegmentTree(ValueType identity_Value, LazyType identity_Lazy,
                     CombineFunc combine_func, ApplyFunc apply_func, ComposeFunc compose_func) 
         : n(0), id_Value(identity_Value), id_Lazy(identity_Lazy), 
           combine(combine_func), apply_op(apply_func), compose_op(compose_func) {
-        st.resize(4 * 200005 + 1, id_Value);
-        lazy.resize(4 * 200005 + 1, id_Lazy);
+        // Expanded to 500005 to meet the maximum N limit of 5 * 10^5
+        st.resize(4 * 500005 + 1, id_Value); 
+        lazy.resize(4 * 500005 + 1, id_Lazy);
     }
- 
+
     void init_once(int new_n) {
         n = new_n;
     }
- 
+
+    void build(const std::vector<ValueType>& arr) {
+        build(1, 1, n, arr);
+    }
+
     void update(int u, int v, LazyType val) {
         update(1, 1, n, u, v, val);
     }
- 
+
     ValueType query(int u, int v) {
         return query(1, 1, n, u, v);
     }
