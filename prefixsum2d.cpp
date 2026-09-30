@@ -6,5 +6,5 @@ for (int i = 1; i <= n; ++i) {
     }
 
 int sumRegion(int a, int b, int A, int B) {
-        return pref[A][B] - pref[a - 1][B] - pref[A][b - 1] + pref[a - 1][b - 1];
+        return pref[A][B] - pref[a - 1][B] - pref[A][b - 1] + pref[a - 1][b - 1]; row a -> A, column b -> B (inclusive)
     }
