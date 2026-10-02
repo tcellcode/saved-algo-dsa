@@ -5,7 +5,7 @@ void tarjan(int u, int p = -1)
      
      for (auto v : g[u])
      {
-          if (vis[v]) continue;
+          if (onstack[v]) continue;
           
           if (id[v]) low[u] = min(low[u], id[v]);
           else
@@ -23,7 +23,7 @@ void tarjan(int u, int p = -1)
           {
                v = s.top();
                s.pop();  
-               vis[v] = 1;
+               onstack[v] = 1;
           } while (v != u);
      }
 }
