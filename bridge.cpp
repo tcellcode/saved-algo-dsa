@@ -1,31 +1,33 @@
-void tarjan(int u, int p = -1)
-{
-     low[u] = id[u] = ++dfstime;
-     s.push(u);
-     
-     for (auto v : g[u])
-     {    
-          if (id[v]) low[u] = min(low[u], id[v]);
-          else
-          {
-               tarjan(v);
-               low[u] = min(low[u], low[v]);
+// g[u] represents an undirected adjacency list
+// id[u] stores the discovery time of node u
+// low[u] stores the lowest discovery time reachable from u
+int dfstime = 0;
+vector<int> id, low; 
 
-              if (low[to] > tin[v])
-                IS_BRIDGE(v, to);
-          
-          }
-     }
-     
-     if (low[u] == id[u])
-     {
-          ++scc; 
-          int v;
-          do
-          {
-               v = s.top();
-               s.pop();  
-               vis[v] = 1;
-          } while (v != u);
-     }
+void find_bridges(int u, int p = -1) 
+{
+    low[u] = id[u] = ++dfstime;
+
+    for (auto v : g[u]) 
+    {
+        if (v == p) continue; // Skip the edge leading back to the parent
+
+        if (id[v]) 
+        {
+            // Back-edge found: update low link with neighbor's discovery time
+            low[u] = min(low[u], id[v]);
+        } 
+        else 
+        {
+            // Forward-edge: visit the unvisited neighbor
+            find_bridges(v, u);
+            low[u] = min(low[u], low[v]);
+
+            // Bridge condition: if v cannot reach u or any ancestor of u
+            if (low[v] > id[u]) 
+            {
+                IS_BRIDGE(u, v); 
+            }
+        }
+    }
 }
