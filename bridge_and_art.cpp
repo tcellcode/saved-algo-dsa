@@ -6,6 +6,7 @@ vector<int> id, low;
 
 void find_art_bridge(int u, int p = -1) 
 {
+    int child = (p != -1);
     low[u] = id[u] = ++dfstime;
 
     for (auto v : g[u]) 
