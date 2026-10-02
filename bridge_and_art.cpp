@@ -1,36 +1,57 @@
-// g[u] represents an undirected adjacency list
-// id[u] stores the discovery time of node u
-// low[u] stores the lowest discovery time reachable from u
-int dfstime = 0;
-vector<int> id, low; 
+#include <bits/stdc++.h>
+using namespace std;
+#define int long long
+#define fastio ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+#define oo (int)(1e18)
+#define N (int)(1e5 + 5)
+ 
+int n, m, id[N], low[N], dfstime, art, bridge;
+vector<pair<int, int>> adj[N];
 
-void find_art_bridge(int u, int p = -1) 
+void find_art_bridge(int u, int p_edge = 0)
 {
-    int child = (p != -1);
     low[u] = id[u] = ++dfstime;
+    int child = (p_edge != 0);
 
-    for (auto v : g[u]) 
+    for (auto [v, i] : adj[u])
     {
-        if (v == p) continue; // Skip the edge leading back to the parent
 
-        if (id[v]) 
+        if (i == p_edge) continue;
+
+        if (id[v]) low[u] = min(low[u], id[v]);
+        else
         {
-            // Back-edge found: update low link with neighbor's discovery time
-            low[u] = min(low[u], id[v]);
-        } 
-        else 
-        {
-            // Forward-edge: visit the unvisited neighbor
-            find_art_bridge(v, u);
+            
+            find_art_bridge(v, i);
             low[u] = min(low[u], low[v]);
             if (low[v] >= id[u]) ++child;
-            // Bridge condition: if v cannot reach u or any ancestor of u
-            if (low[v] > id[u]) 
-            {
-                IS_BRIDGE(u, v); 
-            }
+            if (low[v] > id[u]) ++bridge;
         }
     }
+    if (child > 1) ++art;
+}
 
-    if (child > 1) IS_CUTPOINT(u);
+void solve()
+{
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++)
+    {
+        int u, v; cin >> u >> v;
+        adj[u].push_back({v, i});
+        adj[v].push_back({u, i});
+    }
+    for (int i = 1; i <= n; i++)
+    {
+        if (!id[i])
+        {
+            find_art_bridge(i);
+        }
+    }
+    cout << art << " " << bridge;
+}
+
+signed main() {
+    fastio;
+    solve();
+    return 0;
 }
