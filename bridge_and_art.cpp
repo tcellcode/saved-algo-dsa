@@ -4,7 +4,7 @@
 int dfstime = 0;
 vector<int> id, low; 
 
-void find_bridges(int u, int p = -1) 
+void find_art_bridge(int u, int p = -1) 
 {
     low[u] = id[u] = ++dfstime;
 
@@ -20,9 +20,9 @@ void find_bridges(int u, int p = -1)
         else 
         {
             // Forward-edge: visit the unvisited neighbor
-            find_bridges(v, u);
+            find_art_bridge(v, u);
             low[u] = min(low[u], low[v]);
-
+            if (low[v] >= id[u]) ++child;
             // Bridge condition: if v cannot reach u or any ancestor of u
             if (low[v] > id[u]) 
             {
@@ -30,4 +30,6 @@ void find_bridges(int u, int p = -1)
             }
         }
     }
+
+    if (child > 1) IS_CUTPOINT(u);
 }
