@@ -12,8 +12,6 @@ void tarjan(int u, int p = -1)
           {
                tarjan(v, u);
                low[u] = min(low[u], low[v]);
-
-               if (low[v] > id[u]) IS_BRIDGE(v, u);
           }
      }
      
