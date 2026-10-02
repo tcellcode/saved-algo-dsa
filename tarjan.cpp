@@ -1,4 +1,4 @@
-void tarjan(int u)
+void tarjan(int u, int p = -1)
 {
      low[u] = id[u] = ++dfstime;
      s.push(u);
@@ -10,8 +10,10 @@ void tarjan(int u)
           if (id[v]) low[u] = min(low[u], id[v]);
           else
           {
-               tarjan(v);
+               tarjan(v, u);
                low[u] = min(low[u], low[v]);
+
+               if (low[v] > id[u]) IS_BRIDGE(v, u);
           }
      }
      
